@@ -7,7 +7,8 @@ import logger from 'morgan';
 import dotenv from 'dotenv';
 import expressip from 'express-ip';
 
-dotenv.config();
+// 根据当前环境加载不同的环境变量文件
+dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 
 import routerInit from './routes';
 
@@ -18,7 +19,8 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '../public')));
+
 app.use(expressip().getIpInfoMiddleware);
 
 // router initialisation
