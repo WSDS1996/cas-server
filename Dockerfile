@@ -1,23 +1,20 @@
-# use docker node 16.15.0
+# 使用Node.js官方镜像作为基础镜像
 FROM node:16
 
-# custom cache invalidation
-ARG CACHEBUST=1
+# 设置工作目录
+WORKDIR /usr/src/app
 
-# create a directory to run docker
-WORKDIR /app
+# 复制package.json文件和package-lock.json文件到工作目录
+COPY package*.json ./
 
-# copy all other files into the app directory
-COPY . /app
+# 安装项目依赖
+RUN npm install
 
-# install the dependencies
-RUN cd /app \
-    && npm ci --legacy-peer-deps
+# 复制所有源代码到工作目录
+COPY . .
 
-# Give execution rights on the wait-for-it.sh script
-RUN chmod +x /app/wait-for-it.sh
+# 暴露容器端口
+EXPOSE 3000
 
-# open port 5000
-EXPOSE 5000
-
+# 运行Express应用
 CMD [ "npm", "run", "start:production" ]
