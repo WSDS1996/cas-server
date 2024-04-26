@@ -1,4 +1,4 @@
-name: cas server
+name: cas client
 
 # Controls when the workflow will run
 on:
@@ -20,6 +20,13 @@ jobs:
       name: production
 
     steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: '16.15.0'
+
       - name: SSH Server Deploy
         uses: kostya-ten/ssh-server-deploy@v4
         with:
@@ -28,4 +35,4 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_SSH_PRIVATE_KEY }}
           scp_source: .
-          scp_target: /project/cas/cas_server
+          scp_target: /project/cas/cas_server/
