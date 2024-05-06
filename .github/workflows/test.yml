@@ -35,4 +35,4 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_SSH_PRIVATE_KEY }}
           scp_source: .
-          scp_target: /project/cas/cas_server/
+          scp_target: /project/cas_server/
