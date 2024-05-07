@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 3000
 
 # 运行Express应用
-CMD [ "npm", "run", "start:production" ]
+CMD [ "npm", "run", "start" ]
