@@ -18,6 +18,22 @@ export class Application {
   @Column('varchar', { unique: true })
   domain: string;
 
+  // ip白名单
+  @Column('varchar', { unique: true })
+  whitelistIp: string;
+
+  // 状态0关闭，1开启
+  @Column('varchar', { unique: true })
+  isEnable: boolean;
+
+  // 管理员（注册应用的人）
+  @Column('varchar', { unique: true })
+  administrator: string;
+
+  // 用户成员（可登录系统的人）
+  @Column('varchar', { unique: true })
+  members: string;
+
   // 应用token
   @Column('varchar', { unique: true })
   token: string;
@@ -31,3 +47,4 @@ export class Application {
 }
 
 export default Application;
+
