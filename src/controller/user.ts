@@ -165,6 +165,18 @@ export const profile = async (req: Request, res: Response, next: NextFunction): 
   res.cookie('CAS_TGC', TGC, { maxAge: expires.TGC_EXPIRE * 1000, httpOnly: true });
 
   redis.setex(`TGC:${TGC}`, expires.TGC_EXPIRE, TGT);
+  console.log(req.query.callback);
+  console.log(TGT);
+
+  if (req.query.callback) {
+    // 生成ST
+    const ST = getUniCode(12);
+    redis.hset(`ST:${ST}`, { TGT });
+    redis.expire(`ST:${ST}`, expires.ST_EXPIRE);
+
+    res.redirect(301, `${req.query.callback}?ST=${ST}`);
+    return;
+  }
 
   success(res, { data: userInfo });
 };
