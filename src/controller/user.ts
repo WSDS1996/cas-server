@@ -127,7 +127,18 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
  */
 export const profile = async (req: Request, res: Response, next: NextFunction): Promise<RequestHandler> => {
   const { CAS_TGC } = req.cookies;
-
+  const { result, callbackUrlParam } = validate(
+    {
+      callbackUrlParam: { type: 'string', required: false, validation: valid.isUrl  },
+    },
+    req.body,
+  );
+    // 参数校验
+    if (result.length) {
+      fail(res, { code: resCode.INVALID, message: result.join(';') });
+      return;
+    }
+ let callbackUrl = ''
   // 清除之前的TGT
   redis.del(`TGC:${CAS_TGC}`);
   const profile = res.locals.profile;
@@ -165,20 +176,17 @@ export const profile = async (req: Request, res: Response, next: NextFunction): 
   res.cookie('CAS_TGC', TGC, { maxAge: expires.TGC_EXPIRE * 1000, httpOnly: true });
 
   redis.setex(`TGC:${TGC}`, expires.TGC_EXPIRE, TGT);
-  console.log(req.query.callback);
-  console.log(TGT);
 
-  if (req.query.callback) {
+  if (callbackUrlParam) {
     // 生成ST
     const ST = getUniCode(12);
     redis.hset(`ST:${ST}`, { TGT });
     redis.expire(`ST:${ST}`, expires.ST_EXPIRE);
 
-    res.redirect(301, `${req.query.callback}?ST=${ST}`);
-    return;
+    callbackUrl=`${callbackUrlParam}?ST=${ST}`;
   }
 
-  success(res, { data: userInfo });
+  success(res, { data: userInfo, callbackUrl });
 };
 
 /**
