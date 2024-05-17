@@ -4,6 +4,7 @@ import { dataSource, redis } from '../database';
 import { resCode } from '../enums';
 import { LoginLog, User, Application } from '../models';
 import { encryption, valid, validate, success, fail, getUniCode } from '../util';
+import * as _ from 'lodash';
 
 /**
  * index
@@ -193,7 +194,7 @@ export const query = async (req: Request, res: Response, next: NextFunction): Pr
   const params = { token, name, domain };
   const where = Object.keys(params).reduce((acc, key) => {
     const value = params[key];
-    if (value !== undefined) {
+    if (!_.isEmpty(value)) {
       acc.push({ [key]: value, common: { isActive: true } });
     }
     return acc;

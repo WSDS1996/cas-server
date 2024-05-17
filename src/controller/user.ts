@@ -127,18 +127,18 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
  */
 export const profile = async (req: Request, res: Response, next: NextFunction): Promise<RequestHandler> => {
   const { CAS_TGC } = req.cookies;
-  const { result, callbackUrlParam } = validate(
+  let { result, callbackUrlParam } = validate(
     {
-      callbackUrlParam: { type: 'string', required: false, validation: valid.isUrl  },
+      callbackUrlParam: { type: 'string', required: false, validation: valid.isUrl },
     },
     req.body,
   );
-    // 参数校验
-    if (result.length) {
-      fail(res, { code: resCode.INVALID, message: result.join(';') });
-      return;
-    }
- let callbackUrl = ''
+  // 参数校验
+  if (result.length) {
+    fail(res, { code: resCode.INVALID, message: result.join(';') });
+    return;
+  }
+  callbackUrlParam = callbackUrlParam || req.query.callbackUrlParam;
   // 清除之前的TGT
   redis.del(`TGC:${CAS_TGC}`);
   const profile = res.locals.profile;
@@ -177,14 +177,23 @@ export const profile = async (req: Request, res: Response, next: NextFunction): 
 
   redis.setex(`TGC:${TGC}`, expires.TGC_EXPIRE, TGT);
 
-  if (callbackUrlParam) {
+  let callbackUrl = '';
+  let isUrl = valid.isUrl(callbackUrlParam);
+  const repositoryApplication = dataSource.getRepository(Application);
+  const targetApp = await repositoryApplication.findOne({ where: { domain: `${callbackUrlParam}` } });
+  console.log(isUrl);
+  console.log(targetApp);
+
+  if (isUrl && targetApp) {
     // 生成ST
     const ST = getUniCode(12);
     redis.hset(`ST:${ST}`, { TGT });
     redis.expire(`ST:${ST}`, expires.ST_EXPIRE);
 
-    callbackUrl=`${callbackUrlParam}?ST=${ST}`;
+    callbackUrl = `${callbackUrlParam}?ST=${ST}`;
   }
+  console.log(userInfo);
+  console.log(callbackUrl);
 
   success(res, { data: userInfo, callbackUrl });
 };

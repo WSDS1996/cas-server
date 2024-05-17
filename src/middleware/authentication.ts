@@ -10,6 +10,8 @@ import { decipher, fail } from '../util';
 export async function isManager(req: Request, res: Response, next: NextFunction): Promise<RequestHandler> {
   // 用户身份验证
   const { CAS_TGC } = req.cookies;
+  console.log(CAS_TGC);
+
   if (!CAS_TGC) {
     fail(res, { code: resCode.REFUSE, message: '未登录，请先登录！' });
     return;

@@ -35,11 +35,12 @@ export const checkST = async (req: Request, res: Response, next: NextFunction): 
     fail(res, { code: resCode.REFUSE, message: `目标应用${domain}未注册！` });
     return;
   }
+  console.log(targetApp);
 
   if (!targetTGT) {
     fail(res, { code: resCode.REFUSE, message: 'ST认证失败，请重新授权！' });
     return;
-  } else if (targetApp.token !== targetToken) {
+  } else if (targetApp.token !== token) {
     fail(res, { code: resCode.REFUSE, message: '应用token不匹配，请重新授权！' });
     return;
   } else if (targetApp.domain !== domain) {

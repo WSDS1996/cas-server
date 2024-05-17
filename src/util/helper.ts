@@ -1,5 +1,6 @@
 import type { Response } from 'express';
 import { resCode } from '../enums';
+import * as _ from 'lodash';
 
 /**
  * 随机字符
@@ -56,12 +57,12 @@ export const validate = (rules: validationRulesType, data: validationDataType): 
       }
 
       // default
-      if (value.hasOwnProperty('default') && data[item] === undefined) {
+      if (value.hasOwnProperty('default') && _.isEmpty(data[item])) {
         data[item] = value.default;
       }
 
       // required
-      if (data[item] === undefined) {
+      if (_.isEmpty(data[item])) {
         if (!value.required) continue;
         result.push(`缺少参数${item}`);
         continue;
@@ -102,7 +103,7 @@ export const validate = (rules: validationRulesType, data: validationDataType): 
         }
       }
 
-      if (data[item] !== undefined && data[item] !== null) summary[item] = data[item];
+      if (!_.isEmpty(data[item])) summary[item] = data[item];
     }
 
     return { result, ...data, summary };
@@ -116,6 +117,7 @@ type ResponseData = {
   message?: string;
   data?: any;
   count?: number;
+  callbackUrl?: string;
 };
 // request success
 export const success = (res: Response, data: ResponseData = {}) => {

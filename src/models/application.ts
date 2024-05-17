@@ -31,7 +31,7 @@ export class Application {
   administrator: string;
 
   // 用户成员（可登录系统的人）
-  @Column('varchar', { unique: true })
+  @Column('varchar', { nullable: true })
   members: string;
 
   // 应用token
@@ -47,4 +47,3 @@ export class Application {
 }
 
 export default Application;
-
