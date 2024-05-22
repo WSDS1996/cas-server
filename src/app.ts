@@ -8,7 +8,8 @@ import dotenv from 'dotenv';
 import expressip from 'express-ip';
 
 // 根据当前环境加载不同的环境变量文件
-dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
+dotenv.config({ path: `.env` });
+dotenv.config({ path: `.env.${process.env.NODE_ENV}`, override: true });
 
 import routerInit from './routes';
 

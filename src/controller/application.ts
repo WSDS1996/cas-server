@@ -4,6 +4,7 @@ import { dataSource, redis } from '../database';
 import { resCode } from '../enums';
 import { LoginLog, User, Application } from '../models';
 import { encryption, valid, validate, success, fail, getUniCode } from '../util';
+import * as _ from 'lodash';
 
 /**
  * index
@@ -16,16 +17,18 @@ export const index = (req: Request, res: Response, next: NextFunction): Promise<
 
 /**
  * 新增项目
- * @param req.body.name string
- * @param req.body.domain string
- * @param req.body.desc string
+ * @param req.body.name string 名称
+ * @param req.body.domain string  域名
+ * @param req.body.desc string  描述
+ * @param req.body.whitelistIp string ip白名单
  * @method POST
  */
 export const register = async (req: Request, res: Response, next: NextFunction): Promise<RequestHandler> => {
-  const { name, domain, desc, result, expire } = validate(
+  const { name, domain, desc, result, expire, whitelistIp } = validate(
     {
       name: { type: 'string', required: true },
       domain: { type: 'string', required: true, validation: valid.isUrl },
+      whitelistIp: { type: 'string', required: true, validation: valid.isUrl },
       desc: { type: 'string' },
       expire: { type: 'timestamp' },
     },
@@ -45,6 +48,8 @@ export const register = async (req: Request, res: Response, next: NextFunction):
     fail(res, { code: resCode.EXISTED, message: `${domain} existed !` });
     return;
   }
+  // 设置管理员
+  const administrator = res.locals.profile.unId;
 
   const token = getUniCode(12);
 
@@ -54,6 +59,9 @@ export const register = async (req: Request, res: Response, next: NextFunction):
     desc,
     token,
     expire,
+    administrator,
+    isEnable: true,
+    whitelistIp,
   });
 
   success(res, { message: `${name}:${domain} registered successful !`, data: { token } });
@@ -62,21 +70,27 @@ export const register = async (req: Request, res: Response, next: NextFunction):
 
 /**
  * 编辑项目
- * @param req.body.token string
- * @param req.body.domain string
- * @param req.body.name string
- * @param req.body.desc string
+ * @param req.body.token string 项目token
+ * @param req.body.domain string  项目域名
+ * @param req.body.name string    项目名称
+ * @param req.body.desc string    项目
  * @param req.body.expire string
+ * @param req.body.whitelistIp string ip白名单
+ * @param req.body.isEnable boolean 是否开启
+ * @param req.body.members string 成员名单，用,分隔
  * @method PUT
  */
 export const update = async (req: Request, res: Response, next: NextFunction): Promise<RequestHandler> => {
-  const { name, token, domain, desc, expire, result } = validate(
+  const { name, token, domain, desc, expire, whitelistIp, isEnable, members, result } = validate(
     {
       token: { type: 'string', required: true },
       name: { type: 'string' },
       domain: { type: 'string', validation: valid.isUrl },
       desc: { type: 'string' },
       expire: { type: 'timestamp' },
+      whitelistIp: { type: 'string' },
+      isEnable: { type: 'boolean' },
+      members: { type: 'string' },
     },
     req.body,
   );
@@ -101,6 +115,9 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
       desc,
       domain,
       expire,
+      whitelistIp,
+      isEnable,
+      members,
     },
   );
 
@@ -134,6 +151,11 @@ export const remove = async (req: Request, res: Response, next: NextFunction): P
   // user repeated
   if (!appInfo) {
     fail(res, { code: resCode.NOT_EXIST, message: `token: ${token} not registered!` });
+    return;
+  }
+  // 只有管理员和系统管理员可以删除
+  if (res.locals.profile.unId !== appInfo.administrator && !res.locals.profile.manager) {
+    fail(res, { code: resCode.IN_PRIVILEGE, message: `非项目管理员，无权限删除!` });
     return;
   }
 
@@ -172,7 +194,7 @@ export const query = async (req: Request, res: Response, next: NextFunction): Pr
   const params = { token, name, domain };
   const where = Object.keys(params).reduce((acc, key) => {
     const value = params[key];
-    if (value !== undefined) {
+    if (!_.isEmpty(value)) {
       acc.push({ [key]: value, common: { isActive: true } });
     }
     return acc;
