@@ -43,8 +43,11 @@ export const checkST = async (req: Request, res: Response, next: NextFunction): 
   } else if (targetApp.token !== token) {
     fail(res, { code: resCode.REFUSE, message: '应用token不匹配，请重新授权！' });
     return;
-  } else if (targetApp.domain !== domain) {
+  } else if (targetApp.domain !== domain && !targetApp.isDebug) {
     fail(res, { code: resCode.REFUSE, message: '应用domain不匹配，请重新授权！' });
+    return;
+  } else if (targetApp.whitelistIp.split(',').indexOf(req.ip) === -1 && !targetApp.isDebug) {
+    fail(res, { code: resCode.REFUSE, message: '应用ip不在白名单内，请重新授权！' });
     return;
   }
 

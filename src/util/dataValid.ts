@@ -14,5 +14,19 @@ export const valid: validType = {
   isUrl: (value: string) => {
     return /(http|https):\/\/([^\r\n]+)/.test(value);
   },
+  isIp: (value: string) => {
+    const ipPattern = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+    const ipArray = value.split(',');
+    if (ipArray.length === 0) {
+      return false;
+    }
+    for (const ip of ipArray) {
+      // IPv4地址的正则表达式
+      if (!ipPattern.test(value)) {
+        return false;
+      }
+      return true;
+    }
+  },
   isEmpty: (value: any) => isEmpty(value),
 };

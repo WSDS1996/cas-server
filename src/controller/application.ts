@@ -28,7 +28,7 @@ export const register = async (req: Request, res: Response, next: NextFunction):
     {
       name: { type: 'string', required: true },
       domain: { type: 'string', required: true, validation: valid.isUrl },
-      whitelistIp: { type: 'string', required: true, validation: valid.isUrl },
+      whitelistIp: { type: 'string', required: true, validation: valid.isIp },
       desc: { type: 'string' },
       expire: { type: 'timestamp' },
     },
@@ -41,7 +41,8 @@ export const register = async (req: Request, res: Response, next: NextFunction):
   }
 
   const repository = dataSource.getRepository(Application);
-  const appInfo = await repository.findOne({ where: [{ domain }] });
+  const appInfo = await repository.findOne({ where: { domain } });
+  console.log(appInfo);
 
   // user repeated
   if (appInfo) {
@@ -61,6 +62,7 @@ export const register = async (req: Request, res: Response, next: NextFunction):
     expire,
     administrator,
     isEnable: true,
+    isDebug: true,
     whitelistIp,
   });
 
@@ -77,19 +79,21 @@ export const register = async (req: Request, res: Response, next: NextFunction):
  * @param req.body.expire string
  * @param req.body.whitelistIp string ip白名单
  * @param req.body.isEnable boolean 是否开启
+ * @param req.body.isDebug boolean 是否开启调试模式
  * @param req.body.members string 成员名单，用,分隔
  * @method PUT
  */
 export const update = async (req: Request, res: Response, next: NextFunction): Promise<RequestHandler> => {
-  const { name, token, domain, desc, expire, whitelistIp, isEnable, members, result } = validate(
+  const { name, token, domain, desc, expire, whitelistIp, isEnable, members, result, isDebug } = validate(
     {
       token: { type: 'string', required: true },
       name: { type: 'string' },
       domain: { type: 'string', validation: valid.isUrl },
       desc: { type: 'string' },
       expire: { type: 'timestamp' },
-      whitelistIp: { type: 'string' },
+      whitelistIp: { type: 'string', validation: valid.isIp },
       isEnable: { type: 'boolean' },
+      isDebug: { type: 'boolean' },
       members: { type: 'string' },
     },
     req.body,
@@ -118,6 +122,7 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
       whitelistIp,
       isEnable,
       members,
+      isDebug,
     },
   );
 

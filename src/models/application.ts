@@ -23,8 +23,12 @@ export class Application {
   whitelistIp: string;
 
   // 状态0关闭，1开启
-  @Column('varchar', { unique: true })
+  @Column('boolean', { unique: true })
   isEnable: boolean;
+
+  // 是否开启调试模式
+  @Column('boolean', { unique: true })
+  isDebug: boolean;
 
   // 管理员（注册应用的人）
   @Column('varchar', { unique: true })
