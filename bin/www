@@ -26,7 +26,7 @@ var server = http.createServer(app);
  */
 
 server.listen(port, () => {
-  console.log('listen on 5743 prots');
+  console.log(`listen on ${port} prots`);
 });
 
 /**

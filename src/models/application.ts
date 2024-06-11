@@ -26,21 +26,21 @@ export class Application {
   @Column('boolean', { unique: true })
   isEnable: boolean;
 
-  // 是否开启调试模式
-  @Column('boolean', { unique: true })
-  isDebug: boolean;
-
   // 管理员（注册应用的人）
   @Column('varchar', { unique: true })
   administrator: string;
 
   // 用户成员（可登录系统的人）
-  @Column('varchar', { nullable: true })
+  @Column('varchar', { unique: true })
   members: string;
 
   // 应用token
   @Column('varchar', { unique: true })
   token: string;
+
+  // 是否开启调试
+  @Column('boolean', { unique: true })
+  isDebug: boolean;
 
   // 有效期限
   @Column('datetime', { nullable: true })

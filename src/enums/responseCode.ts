@@ -42,3 +42,7 @@ export const REFUSE = 26;
  * 拒绝，权限不够
  */
 export const IN_PRIVILEGE = 27;
+/**
+ * 拒绝，ip白名单错误
+ */
+export const IP_ERROR = 28;

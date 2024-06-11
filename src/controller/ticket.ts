@@ -25,7 +25,7 @@ export const checkST = async (req: Request, res: Response, next: NextFunction): 
     return;
   }
 
-  const { TGT: targetTGT, token: targetToken } = await redis.hgetall(`ST:${ST}`);
+  const { TGT: targetTGT } = await redis.hgetall(`ST:${ST}`);
   redis.del(`ST:${ST}`);
 
   const repository = dataSource.getRepository(Application);
@@ -35,19 +35,20 @@ export const checkST = async (req: Request, res: Response, next: NextFunction): 
     fail(res, { code: resCode.REFUSE, message: `目标应用${domain}未注册！` });
     return;
   }
-  console.log(targetApp);
 
+  console.log(targetApp.token);
+  console.log(token);
   if (!targetTGT) {
     fail(res, { code: resCode.REFUSE, message: 'ST认证失败，请重新授权！' });
     return;
   } else if (targetApp.token !== token) {
     fail(res, { code: resCode.REFUSE, message: '应用token不匹配，请重新授权！' });
     return;
-  } else if (targetApp.domain !== domain && !targetApp.isDebug) {
+  } else if (targetApp.domain !== domain) {
     fail(res, { code: resCode.REFUSE, message: '应用domain不匹配，请重新授权！' });
     return;
-  } else if (targetApp.whitelistIp.split(',').indexOf(req.ip) === -1 && !targetApp.isDebug) {
-    fail(res, { code: resCode.REFUSE, message: '应用ip不在白名单内，请重新授权！' });
+  } else if (!targetApp.whitelistIp.includes(req.ip) && !targetApp.isDebug) {
+    fail(res, { code: resCode.IP_ERROR, message: '请求ip不是授权ip！' });
     return;
   }
 

@@ -50,6 +50,7 @@ export const validate = (rules: validationRulesType, data: validationDataType): 
 
     for (const item in rules) {
       const value = rules[item];
+      console.log(value);
 
       // from
       if (value.hasOwnProperty('from') && typeof value.from === 'object') {

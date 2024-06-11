@@ -133,12 +133,15 @@ export const profile = async (req: Request, res: Response, next: NextFunction): 
     },
     req.body,
   );
+  if (!callbackUrlParam && req.query.callbackUrlParam) {
+    callbackUrlParam = req.query.callbackUrlParam;
+  }
   // 参数校验
   if (result.length) {
     fail(res, { code: resCode.INVALID, message: result.join(';') });
     return;
   }
-  callbackUrlParam = callbackUrlParam || req.query.callbackUrlParam;
+  let callbackUrl = '';
   // 清除之前的TGT
   redis.del(`TGC:${CAS_TGC}`);
   const profile = res.locals.profile;
@@ -177,14 +180,7 @@ export const profile = async (req: Request, res: Response, next: NextFunction): 
 
   redis.setex(`TGC:${TGC}`, expires.TGC_EXPIRE, TGT);
 
-  let callbackUrl = '';
-  let isUrl = valid.isUrl(callbackUrlParam);
-  const repositoryApplication = dataSource.getRepository(Application);
-  const targetApp = await repositoryApplication.findOne({ where: { domain: `${callbackUrlParam}` } });
-  console.log(isUrl);
-  console.log(targetApp);
-
-  if (isUrl && targetApp) {
+  if (callbackUrlParam) {
     // 生成ST
     const ST = getUniCode(12);
     redis.hset(`ST:${ST}`, { TGT });
@@ -192,8 +188,6 @@ export const profile = async (req: Request, res: Response, next: NextFunction): 
 
     callbackUrl = `${callbackUrlParam}?ST=${ST}`;
   }
-  console.log(userInfo);
-  console.log(callbackUrl);
 
   success(res, { data: userInfo, callbackUrl });
 };
