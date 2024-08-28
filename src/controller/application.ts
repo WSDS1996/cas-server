@@ -24,16 +24,21 @@ export const index = (req: Request, res: Response, next: NextFunction): Promise<
  * @method POST
  */
 export const register = async (req: Request, res: Response, next: NextFunction): Promise<RequestHandler> => {
-  const { name, domain, desc, result, expire, whitelistIp } = validate(
+  let { name, domain, desc, result, expire, whitelistIp, isEnable, isDebug, members } = validate(
     {
       name: { type: 'string', required: true },
       domain: { type: 'string', required: true, validation: valid.isUrl },
       whitelistIp: { type: 'string' },
       desc: { type: 'string' },
       expire: { type: 'timestamp' },
+      isEnable: { type: 'boolean', default: true },
+      isDebug: { type: 'boolean', default: true },
+      members: { type: 'string', default: '' },
     },
     req.body,
   );
+  expire = new Date(expire).toISOString();
+
   // 参数校验
   if (result.length) {
     fail(res, { code: resCode.MISTAKE, message: result.join(';') });
@@ -61,9 +66,10 @@ export const register = async (req: Request, res: Response, next: NextFunction):
     token,
     expire,
     administrator,
-    isEnable: true,
+    isEnable,
     whitelistIp,
-    isDebug: true,
+    isDebug,
+    members,
   });
 
   success(res, { message: `${name}:${domain} registered successful !`, data: { token } });
@@ -83,7 +89,7 @@ export const register = async (req: Request, res: Response, next: NextFunction):
  * @method PUT
  */
 export const update = async (req: Request, res: Response, next: NextFunction): Promise<RequestHandler> => {
-  const { name, token, domain, desc, expire, whitelistIp, isEnable, members, result } = validate(
+  let { name, token, domain, desc, expire, whitelistIp, isEnable, isDebug, members, result } = validate(
     {
       token: { type: 'string', required: true },
       name: { type: 'string' },
@@ -92,10 +98,13 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
       expire: { type: 'timestamp' },
       whitelistIp: { type: 'string' },
       isEnable: { type: 'boolean' },
+      isDebug: { type: 'boolean' },
       members: { type: 'string' },
     },
     req.body,
   );
+  expire = new Date(expire).toISOString();
+
   // 参数校验
   if (result.length) {
     fail(res, { code: resCode.MISTAKE, message: result.join(';') });
@@ -119,6 +128,7 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
       expire,
       whitelistIp,
       isEnable,
+      isDebug,
       members,
     },
   );
@@ -139,7 +149,7 @@ export const remove = async (req: Request, res: Response, next: NextFunction): P
     {
       token: { type: 'string', required: true },
     },
-    req.query,
+    req.params,
   );
   // 参数校验
   if (result.length) {

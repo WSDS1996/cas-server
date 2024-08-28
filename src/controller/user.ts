@@ -236,12 +236,10 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
     {
       name: { type: 'string' },
       password: { type: 'string' },
-      email: { type: 'string', validation: valid.isEmail },
       birth: { type: 'date' },
       phone: { type: 'string', validation: valid.isPhone },
       avatar: { type: 'string' },
       gender: { type: 'string' },
-      manager: { type: 'boolean' },
     },
     req.body,
   );

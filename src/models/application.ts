@@ -19,19 +19,19 @@ export class Application {
   domain: string;
 
   // ip白名单
-  @Column('varchar', { unique: true })
+  @Column('varchar')
   whitelistIp: string;
 
   // 状态0关闭，1开启
-  @Column('boolean', { unique: true })
+  @Column('boolean')
   isEnable: boolean;
 
   // 管理员（注册应用的人）
-  @Column('varchar', { unique: true })
+  @Column('varchar', { nullable: true })
   administrator: string;
 
   // 用户成员（可登录系统的人）
-  @Column('varchar', { unique: true })
+  @Column('varchar')
   members: string;
 
   // 应用token
@@ -39,7 +39,7 @@ export class Application {
   token: string;
 
   // 是否开启调试
-  @Column('boolean', { unique: true })
+  @Column('boolean')
   isDebug: boolean;
 
   // 有效期限

@@ -9,6 +9,6 @@ router.get('/query', authentication.isUser, ApplicationController.query);
 
 router.post('/register', authentication.isManager, ApplicationController.register);
 router.put('/update', authentication.isManager, ApplicationController.update);
-router.delete('/remove', authentication.isManager, ApplicationController.remove);
+router.delete('/remove/:token', authentication.isManager, ApplicationController.remove);
 
 export default router;
