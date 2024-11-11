@@ -6,6 +6,7 @@ WORKDIR /usr/src/app
 
 # 复制package.json文件和package-lock.json文件到工作目录
 COPY package*.json ./
+RUN npm config set registry http://mirrors.cloud.tencent.com/npm/
 
 # 安装项目依赖
 RUN npm install
